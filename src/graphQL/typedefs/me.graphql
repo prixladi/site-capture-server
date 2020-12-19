@@ -1,0 +1,8 @@
+type Me {
+  sites: [Site!]!
+  templates: [Template!]!
+}
+
+type Query {
+  me: Me!
+}

@@ -1,0 +1,21 @@
+type Template {
+  id: ID!
+  name: String!
+  sizes: [Size!]!
+  quality: Int!
+  userId: String!
+}
+
+input NewTemplateInput {
+  name: String!
+  sizes: [SizeInput!]!
+  quality: Int!
+}
+
+type Query {
+  template(id: ID!): Template!
+}
+
+type Mutation {
+  createTemplate(template: NewTemplateInput): Template!
+}

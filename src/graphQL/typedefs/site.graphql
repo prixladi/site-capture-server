@@ -1,0 +1,35 @@
+type Site {
+  id: ID!
+  name: String!
+  url: String!
+  sizes: [Size!]!
+  quality: Int!
+  isPublic: Boolean!
+  userId: String!
+}
+
+input NewSiteInput {
+  name: String!
+  url: String!
+  sizes: [SizeInput!]!
+  quality: Int!
+  isPublic: Boolean!
+}
+
+input UpdateSiteInput {
+  name: String
+  url: String
+  sizes: [SizeInput!]
+  quality: Int
+  isPublic: Boolean
+}
+
+type Query {
+  sites: [Site!]!
+  site(id: ID!): Site!
+}
+
+type Mutation {
+  createSite(site: NewSiteInput): Site!
+  updateSite(id: ID, update: UpdateSiteInput): Site!
+}

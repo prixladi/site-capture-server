@@ -1,0 +1,9 @@
+type Size {
+  width: Int!
+  height: Int!
+}
+
+input SizeInput {
+  width: Int!
+  height: Int!
+}
