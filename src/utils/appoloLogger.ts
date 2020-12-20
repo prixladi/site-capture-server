@@ -1,20 +1,20 @@
 import { devEnvironment } from '../configs';
 
 const appoloLogger = {
-  debug: (message?: any): void => {
+  debug: (message?: unknown): void => {
     if (devEnvironment) {
       console.debug(message);
     }
   },
-  info: (message?: any): void => {
+  info: (message?: unknown): void => {
     if (devEnvironment) {
       console.debug(message);
     }
   },
-  warn: (message?: any): void => {
+  warn: (message?: unknown): void => {
     console.warn(message);
   },
-  error: (message?: any): void => {
+  error: (message?: unknown): void => {
     console.error(message);
   },
 };

@@ -26,16 +26,18 @@ const templateDocToType = (doc: RawDoc<TemplateDoc>): TemplateType => {
     userId: userId.toString(),
     name,
     sizes,
-    quality
+    quality,
   };
 };
 
-const notFoundError = (message: string) => {
+const notFoundError = (message: string): ApolloError => {
   return new ApolloError(message, 'NOT_FOUND');
 };
 
-const unauthorizedError = (message: string) => {
+const unauthorizedError = (message: string): ApolloError => {
   return new ApolloError(message, 'UNAUTHORIZED');
 };
 
-export { notFoundError, unauthorizedError, siteDocToType, templateDocToType };
+const fallthroughResolver = (): unknown => ({});
+
+export { notFoundError, unauthorizedError, siteDocToType, templateDocToType, fallthroughResolver };

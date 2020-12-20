@@ -25,7 +25,7 @@ const main = async (): Promise<void> => {
     schema,
     playground: true,
     logger: appoloLogger,
-    context:  createContext(db),
+    context: createContext(db),
   });
 
   app.use(corsHandler);

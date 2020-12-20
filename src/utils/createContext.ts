@@ -13,7 +13,7 @@ const getToken = (req: Request) => {
 
 const createContext = (db: DB) => ({ req }: ExpressContext): Context => {
   const token = getToken(req);
-  
+
   if (token) {
     const payload = validateToken(token);
     if (payload) {

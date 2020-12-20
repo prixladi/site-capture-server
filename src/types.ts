@@ -6,7 +6,7 @@ type User = {
 
 type Context = {
   db: DB;
-  user?: User
+  user?: User;
 };
 
 export { Context };

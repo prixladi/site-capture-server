@@ -9,7 +9,7 @@ type Site {
 }
 
 input NewSiteInput {
-  name: String!
+  name: String! @upper
   url: String!
   sizes: [SizeInput!]!
   quality: Int!
@@ -25,11 +25,16 @@ input UpdateSiteInput {
 }
 
 type Query {
-  sites: [Site!]!
-  site(id: ID!): Site!
+  sites(filter: PaginationInput!): [Site!]!
+  site(id: ID!): Site
+}
+ 
+type SiteMutation  {
+  create(site: NewSiteInput): MutationIdResult!
+  update(id: ID, update: UpdateSiteInput): MutationResult!  
+  delete(id: ID): MutationResult!
 }
 
 type Mutation {
-  createSite(site: NewSiteInput): Site!
-  updateSite(id: ID, update: UpdateSiteInput): Site!
+  site: SiteMutation!
 }

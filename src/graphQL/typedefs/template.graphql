@@ -7,15 +7,29 @@ type Template {
 }
 
 input NewTemplateInput {
-  name: String!
+  name: String! 
   sizes: [SizeInput!]!
   quality: Int!
 }
 
+input UpdateTemplateInput {
+  name: String
+  url: String
+  sizes: [SizeInput!]
+  quality: Int
+  isPublic: Boolean
+}
+
 type Query {
-  template(id: ID!): Template!
+  template(id: ID!): Template
+}
+
+type TemplateMutation  {
+  create(template: NewTemplateInput): MutationIdResult!
+  update(id: ID, update: UpdateSiteInput): MutationResult! 
+  delete(id: ID): MutationResult!
 }
 
 type Mutation {
-  createTemplate(template: NewTemplateInput): Template!
+  template: TemplateMutation!
 }

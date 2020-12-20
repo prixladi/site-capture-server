@@ -1,3 +1,22 @@
+directive @upper on IMPUT_FIELD_DEFINITION
+
+enum MutationStatus {
+  OK
+  NOT_FOUND
+  CONFLICT
+}
+
+type MutationResult {
+  status: MutationStatus!
+  query: Query!
+}
+
+type MutationIdResult {
+  id: ID!
+  status: MutationStatus!
+  query: Query!
+}
+
 type Size {
   width: Int!
   height: Int!
@@ -7,3 +26,9 @@ input SizeInput {
   width: Int!
   height: Int!
 }
+
+input PaginationInput {
+  skip: Int!
+  limit: Int!
+}
+

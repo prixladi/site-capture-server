@@ -14,7 +14,7 @@ const logger: ILogger = {
 const schema = makeExecutableSchema({
   logger,
   typeDefs,
-  resolvers,
+  resolvers
 });
 
 const shieldedSchema = applyMiddleware(schema, permissions);

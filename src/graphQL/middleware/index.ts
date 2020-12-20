@@ -10,14 +10,17 @@ const isAuthenticated = rule({ cache: 'contextual' })(async (_, _args, { user }:
   return true;
 });
 
-const permissions = shield({
-  Query: {
-    me: isAuthenticated,
+const permissions = shield(
+  {
+    Query: {
+      me: isAuthenticated,
+    },
+    Mutation: {
+      site: isAuthenticated,
+      template: isAuthenticated,
+    },
   },
-  Mutation: {
-    createSite: isAuthenticated,
-    updateSite: isAuthenticated,
-  },
-});
+  { allowExternalErrors: true },
+);
 
 export { permissions };

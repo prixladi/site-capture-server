@@ -9,6 +9,8 @@ type NewTemplateInput = {
   quality: number;
 };
 
+type UpdateTemplateInput = Partial<NewTemplateInput>;
+
 type TemplateType = {
   id: string;
   name: string;
@@ -25,7 +27,7 @@ type NewSiteInput = {
   isPublic: boolean;
 };
 
-type UpdateSiteInput = Partial<NewSiteInput>
+type UpdateSiteInput = Partial<NewSiteInput>;
 
 type SiteType = {
   name: string;
@@ -37,6 +39,33 @@ type SiteType = {
   userId: string;
 };
 
-type MeType = {};
+type MeType = unknown;
 
-export { NewTemplateInput, TemplateType, NewSiteInput, UpdateSiteInput, SiteType, MeType };
+type PaginationInput = {
+  skip: number;
+  limit: number;
+};
+
+type MutationStatus = 'OK' | 'NOT_FOUND';
+
+type MutationResult = {
+  status: MutationStatus;
+  query: unknown;
+};
+
+type MutationIdResult = MutationResult & {
+  id: string;
+};
+
+export {
+  NewTemplateInput,
+  UpdateTemplateInput,
+  TemplateType,
+  NewSiteInput,
+  UpdateSiteInput,
+  SiteType,
+  MeType,
+  PaginationInput,
+  MutationResult,
+  MutationIdResult,
+};

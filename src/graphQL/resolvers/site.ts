@@ -1,46 +1,64 @@
 import { IResolvers, ISchemaLevelResolver } from 'graphql-tools';
 import { Context } from '../../types';
-import { NewSiteInput, SiteType, UpdateSiteInput } from '../types';
+import { MutationIdResult, MutationResult, NewSiteInput, PaginationInput, SiteType, UpdateSiteInput } from '../types';
 import { ObjectID } from 'mongodb';
-import { notFoundError, siteDocToType } from '../helpers';
+import { fallthroughResolver, siteDocToType } from '../helpers';
 
-type SitesResolver = ISchemaLevelResolver<void, Context, Record<string, string>, Promise<SiteType[]>>;
-type SiteResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<SiteType>>;
-type CreateSiteResolver = ISchemaLevelResolver<void, Context, { site: NewSiteInput }, Promise<SiteType>>;
-type UpdateSiteResolver = ISchemaLevelResolver<void, Context, { id: string; update: UpdateSiteInput }, Promise<SiteType>>;
+type SitesResolver = ISchemaLevelResolver<void, Context, { filter: PaginationInput }, Promise<SiteType[]>>;
+type SiteResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<SiteType | null>>;
 
-const sites: SitesResolver = async (_, _args, { db }) => {
-  const sites = await db.SiteModel.find();
+type CreateSiteResolver = ISchemaLevelResolver<void, Context, { site: NewSiteInput }, Promise<MutationIdResult>>;
+type UpdateSiteResolver = ISchemaLevelResolver<void, Context, { id: string; update: UpdateSiteInput }, Promise<MutationResult>>;
+type DeleteSiteResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<MutationResult>>;
+
+const sites: SitesResolver = async (_, { filter }, { db }) => {
+  const options = { skip: filter.skip, limit: filter.limit };
+  const sites = await db.SiteModel.find({ isPublic: true }, null, options);
   return sites.map(siteDocToType);
 };
 
 const site: SiteResolver = async (_, { id }, { db }) => {
-  const site = await db.SiteModel.findById(id);
-  if (site == null) {
-    throw notFoundError(`Site with id '${id}' was not found`);
+  const site = await db.SiteModel.findOne({ _id: id, isPublic: true });
+  if (!site) {
+    return null;
   }
 
   return siteDocToType(site);
 };
 
-const createSite: CreateSiteResolver = async (_, { site }, { user, db }) => {
+const create: CreateSiteResolver = async (_, { site }, { user, db }) => {
   const doc = { ...site, _id: new ObjectID(), userId: new ObjectID(user!.id) };
   await db.SiteModel.create(doc);
-  return siteDocToType(doc);
+  return { id: doc._id.toString(), query: {}, status: 'OK' };
 };
 
-const updateSite: UpdateSiteResolver = async (_, { id, update }, { db }) => {
-  const site = await db.SiteModel.findOneAndUpdate({ _id: id }, update, { new: true });
-  if (site == null) {
-    throw notFoundError(`Site with id '${id}' was not found`);
+const update: UpdateSiteResolver = async (_, { id, update }, { user, db }) => {
+  const site = await db.SiteModel.findOne({ _id: id });
+  if (site == null || site.userId.toString() !== user!.id) {
+    return { query: {}, status: 'NOT_FOUND' };
   }
 
-  return siteDocToType(site);
+  const updatedSite = await db.SiteModel.findOneAndUpdate({ _id: id }, update, { new: true });
+  if (updatedSite == null) {
+    return { query: {}, status: 'NOT_FOUND' };
+  }
+
+  return { query: {}, status: 'OK' };
+};
+
+const _delete: DeleteSiteResolver = async (_, { id }, { user, db }) => {
+  const site = await db.SiteModel.findOneAndDelete({ _id: id, userId: user!.id });
+  if (site == null) {
+    return { query: {}, status: 'NOT_FOUND' };
+  }
+
+  return { query: {}, status: 'OK' };
 };
 
 const resolvers: IResolvers = {
   Query: { sites, site },
-  Mutation: { createSite, updateSite },
+  Mutation: { site: fallthroughResolver },
+  SiteMutation: { create, update, delete: _delete },
 };
 
 export default resolvers;
