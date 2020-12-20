@@ -1,10 +1,10 @@
+import { AuthenticationError } from 'apollo-server-express';
 import { rule, shield } from 'graphql-shield';
 import { Context } from '../../types';
-import { unauthorizedError } from '../helpers';
 
 const isAuthenticated = rule({ cache: 'contextual' })(async (_, _args, { user }: Context) => {
   if (!user) {
-    return unauthorizedError('User is not authorized.');
+    return new AuthenticationError('User is not authorized.');
   }
 
   return true;
@@ -13,7 +13,7 @@ const isAuthenticated = rule({ cache: 'contextual' })(async (_, _args, { user }:
 const permissions = shield(
   {
     Query: {
-      me: isAuthenticated,
+      me: isAuthenticated
     },
     Mutation: {
       site: isAuthenticated,

@@ -1,6 +1,8 @@
 type Me {
   sites: [Site!]!
   templates: [Template!]!
+  site(id: ID!): Site
+  template(id: ID!): Template
 }
 
 type Query {

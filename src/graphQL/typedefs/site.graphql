@@ -9,7 +9,7 @@ type Site {
 }
 
 input NewSiteInput {
-  name: String! @upper
+  name: String!
   url: String!
   sizes: [SizeInput!]!
   quality: Int!

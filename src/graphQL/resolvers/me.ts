@@ -4,9 +4,29 @@ import { fallthroughResolver, siteDocToType, templateDocToType } from '../helper
 import { MeType, SiteType, TemplateType } from '../types';
 
 type TemplatesResolver = ISchemaLevelResolver<void, Context, Record<string, string>, Promise<TemplateType[]>>;
+type TemplateResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<TemplateType | null>>;
 type SitesResolver = ISchemaLevelResolver<void, Context, Record<string, string>, Promise<SiteType[]>>;
+type SiteResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<SiteType | null>>;
+
 type MeResolver = ISchemaLevelResolver<void, void, Record<string, string>, MeType>;
 
+const site: SiteResolver = async (_, { id }, { db, user }) => {
+  const site = await db.SiteModel.findOne({ _id: id, userId: user!.id });
+  if (!site) {
+    return null;
+  }
+
+  return siteDocToType(site);
+};
+
+const template: TemplateResolver = async (_, { id }, { user, db }) => {
+  const template = await db.TemplateModel.findOne({ _id: id, userId: user!.id });
+  if (!template) {
+    return null;
+  }
+
+  return templateDocToType(template);
+};
 const me: MeResolver = fallthroughResolver;
 
 const templates: TemplatesResolver = async (_, _args, { db, user }) => {
@@ -21,7 +41,7 @@ const sites: SitesResolver = async (_, _args, { db, user }) => {
 
 const resolvers: IResolvers = {
   Query: { me },
-  Me: { templates, sites },
+  Me: { templates, template, sites, site },
 };
 
 export default resolvers;

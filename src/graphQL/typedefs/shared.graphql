@@ -1,5 +1,3 @@
-directive @upper on IMPUT_FIELD_DEFINITION
-
 enum MutationStatus {
   OK
   NOT_FOUND

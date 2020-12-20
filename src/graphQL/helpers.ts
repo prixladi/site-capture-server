@@ -1,4 +1,3 @@
-import { ApolloError } from 'apollo-server-express';
 import { RawDoc } from '../db';
 import { SiteDoc } from '../db/site';
 import { TemplateDoc } from '../db/template';
@@ -30,14 +29,6 @@ const templateDocToType = (doc: RawDoc<TemplateDoc>): TemplateType => {
   };
 };
 
-const notFoundError = (message: string): ApolloError => {
-  return new ApolloError(message, 'NOT_FOUND');
-};
-
-const unauthorizedError = (message: string): ApolloError => {
-  return new ApolloError(message, 'UNAUTHORIZED');
-};
-
 const fallthroughResolver = (): unknown => ({});
 
-export { notFoundError, unauthorizedError, siteDocToType, templateDocToType, fallthroughResolver };
+export { siteDocToType, templateDocToType, fallthroughResolver };

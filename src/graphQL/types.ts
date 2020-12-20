@@ -58,6 +58,7 @@ type MutationIdResult = MutationResult & {
 };
 
 export {
+  Size,
   NewTemplateInput,
   UpdateTemplateInput,
   TemplateType,

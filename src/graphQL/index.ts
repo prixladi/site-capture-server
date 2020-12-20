@@ -1,6 +1,6 @@
 import { makeExecutableSchema } from 'graphql-tools';
 import typeDefs from './typeDefs';
-import resolvers from './resolverDefs';
+import resolvers from './resolvers';
 import { ILogger } from 'apollo-server-express';
 import { applyMiddleware } from 'graphql-middleware';
 import { permissions } from './middleware';
@@ -14,7 +14,7 @@ const logger: ILogger = {
 const schema = makeExecutableSchema({
   logger,
   typeDefs,
-  resolvers
+  resolvers,
 });
 
 const shieldedSchema = applyMiddleware(schema, permissions);

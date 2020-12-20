@@ -20,10 +20,6 @@ input UpdateTemplateInput {
   isPublic: Boolean
 }
 
-type Query {
-  template(id: ID!): Template
-}
-
 type TemplateMutation  {
   create(template: NewTemplateInput): MutationIdResult!
   update(id: ID, update: UpdateSiteInput): MutationResult! 

@@ -1,8 +1,9 @@
-import { IResolvers, ISchemaLevelResolver } from 'graphql-tools';
+import { IResolvers, ISchemaLevelResolver, composeResolvers } from 'graphql-tools';
 import { Context } from '../../types';
 import { MutationIdResult, MutationResult, NewSiteInput, PaginationInput, SiteType, UpdateSiteInput } from '../types';
 import { ObjectID } from 'mongodb';
 import { fallthroughResolver, siteDocToType } from '../helpers';
+import validationResolvers from './validation/site';
 
 type SitesResolver = ISchemaLevelResolver<void, Context, { filter: PaginationInput }, Promise<SiteType[]>>;
 type SiteResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<SiteType | null>>;
@@ -61,4 +62,4 @@ const resolvers: IResolvers = {
   SiteMutation: { create, update, delete: _delete },
 };
 
-export default resolvers;
+export default composeResolvers(resolvers, validationResolvers);
