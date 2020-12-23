@@ -32,6 +32,28 @@ services:
       - 9595:8080
     environment:
       API_URL: http://localhost:8080/docs/v1/swagger.json
-     
+
+  puppet:
+    image: shamyr/site-capture-puppet
+    environment:
+      MONGO_URL: mongodb://mongodb
+      MONGO_DB_NAME: siteCapture
+      MAX_PARALLEL_TABS: 1
+      USE_SANDBOX: "false"
+
+  service:
+    image: shamyr/site-capture/server
+    ports: 
+      - 8000:80 
+    environment:
+      AUTHORITY_SERVICE_URL: http://authority
+      MONGO_URL: mongodb://mongodb
+      MONGO_DB_NAME: siteCapture
+      PORT: 80 
+      NODE_ENV: developement
+    build:
+      context: .
+      dockerfile: ./Dockerfile  
+
 volumes:
   mongodata:

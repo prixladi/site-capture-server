@@ -1,0 +1,30 @@
+type ProgressItem {
+  url: String!
+  status: Boolean!
+  errorMessage: String
+}
+
+type Job {
+  id: ID!
+  progress: Float!
+  items: [ProgressItem!]
+  status: Boolean!
+  zipFileId: String
+}
+
+input NewJobInput {
+  url: String!
+  viewports: [ViewportInput!]!
+  quality: Int!
+}
+
+type Query {
+  # Gets an anonymous job created through 'Mutation { runJob }'.
+  # To get job attached to specific site use 'Query { me { site { latestJob(siteId) } } }'.
+  anonymousJob(id: ID!): Job
+}
+
+type Mutation {
+  # Runs new job using provided data.
+  runAnonymousJob(job: NewJobInput): MutationIdResult
+}

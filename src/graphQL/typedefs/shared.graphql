@@ -10,17 +10,17 @@ type MutationResult {
 }
 
 type MutationIdResult {
-  id: ID!
+  id: ID
   status: MutationStatus!
   query: Query!
 }
 
-type Size {
+type Viewport {
   width: Int!
   height: Int!
 }
 
-input SizeInput {
+input ViewportInput {
   width: Int!
   height: Int!
 }

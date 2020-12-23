@@ -1,12 +1,13 @@
 {
-  "name": "shamyr-rankeer",
+  "name": "site-capture-server",
   "version": "1.0.0",
-  "description": "Backend for Rankeer project.",
+  "description": "Backend for Site Capture project.",
   "author": "Ladislav Prix",
   "license": "ISC",
   "scripts": {
     "dev": "nodemon ./src/index.ts",
     "build": "tsc",
+    "postbuild": "copyfiles -u 1 src/**/*.graphql src/**/*.gql dist/",
     "start": "node ./dist/index.js",
     "eslint:check": "eslint -c .eslintrc.json \"**/*.{js,ts}\"",
     "eslint:fix": "eslint -c .eslintrc.json --fix  \"**/*.{js,ts}\"",
@@ -18,9 +19,9 @@
   "devDependencies": {
     "@types/jsonwebtoken": "^8.5.0",
     "@types/node": "^14.14.14",
-    "@types/puppeteer": "^5.4.2",
     "@typescript-eslint/eslint-plugin": "^4.10.0",
     "@typescript-eslint/parser": "^4.10.0",
+    "copyfiles": "^2.4.1",
     "eslint": "^7.15.0",
     "nodemon": "^2.0.6",
     "prettier": "^2.2.1",
@@ -37,7 +38,6 @@
     "joi": "^17.3.0",
     "jsonwebtoken": "^8.5.1",
     "merge-graphql-schemas": "^1.7.8",
-    "mongoose": "^5.11.8",
-    "puppeteer": "^5.5.0"
+    "mongoose": "^5.11.8"
   }
 }

@@ -2,7 +2,7 @@ import { IResolvers, UserInputError } from 'apollo-server-express';
 import { ISchemaLevelResolver } from 'graphql-tools';
 import { Context } from '../../../types';
 import { MutationIdResult, MutationResult, NewTemplateInput, UpdateTemplateInput } from '../../types';
-import { idSchema, inputError, quealitySchema, sizesSchema, validate } from './utils';
+import { idSchema, inputError, quealitySchema, viewportsSchema, validate } from './utils';
 import joi from 'joi';
 
 type CreateTemplateResolver = ISchemaLevelResolver<
@@ -21,7 +21,7 @@ type DeleteTemplateResolver = ISchemaLevelResolver<void, Context, { id: string }
 
 const newTemplateInputSchema = joi.object<NewTemplateInput>({
   name: joi.string().min(1).max(50),
-  sizes: sizesSchema,
+  viewports: viewportsSchema,
   quality: quealitySchema,
 });
 
@@ -36,7 +36,7 @@ const create = (next: CreateTemplateResolver): CreateTemplateResolver => async (
 
 const updateTemplateInputSchema = joi.object<UpdateTemplateInput>({
   name: joi.string().min(1).max(50).optional().disallow(null),
-  sizes: sizesSchema.optional().disallow(null),
+  viewports: viewportsSchema.optional().disallow(null),
   quality: quealitySchema.optional().disallow(null),
 });
 

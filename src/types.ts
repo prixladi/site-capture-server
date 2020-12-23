@@ -7,6 +7,7 @@ type User = {
 type Context = {
   db: DB;
   user?: User;
+  getUser: () => User;
 };
 
 export { Context };

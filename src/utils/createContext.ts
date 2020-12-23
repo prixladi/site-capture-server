@@ -17,10 +17,15 @@ const createContext = (db: DB) => ({ req }: ExpressContext): Context => {
   if (token) {
     const payload = validateToken(token);
     if (payload) {
+      const user = {
+        id: payload.name,
+      };
+
       return {
         db,
-        user: {
-          id: payload.name,
+        user,
+        getUser: () => {
+          return user;
         },
       };
     }
@@ -28,6 +33,9 @@ const createContext = (db: DB) => ({ req }: ExpressContext): Context => {
 
   return {
     db,
+    getUser: () => {
+      throw new Error('Unable to retrieve user in this context.');
+    },
   };
 };
 

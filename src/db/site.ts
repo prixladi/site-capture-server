@@ -1,19 +1,16 @@
 import mongoose from 'mongoose';
 import { ObjectID } from 'mongodb';
-
-type Size = {
-  width: number;
-  height: number;
-};
+import { Viewport } from './shared';
 
 type SiteDoc = mongoose.Document & {
   _id: ObjectID;
   userId: ObjectID;
   name: string;
   url: string;
-  sizes: Size[];
+  subsites: string[];
+  viewports: Viewport[];
   quality: number;
-  isPublic: boolean;
+  latestJobId?: ObjectID;
 };
 
 const collectionName = 'sites';
@@ -24,14 +21,15 @@ const siteSchema = new mongoose.Schema(
     userId: { type: mongoose.Types.ObjectId, index: 1 },
     name: String,
     url: String,
-    sizes: [
+    subsites: [String],
+    viewports: [
       {
         width: Number,
         height: Number,
       },
     ],
     quality: Number,
-    isPublic: Boolean,
+    latestJobId: { type: mongoose.Types.ObjectId, required: false },
   },
   { collection: collectionName, versionKey: false },
 );

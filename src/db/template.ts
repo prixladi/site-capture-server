@@ -1,16 +1,12 @@
 import mongoose from 'mongoose';
 import { ObjectID } from 'mongodb';
-
-type Size = {
-  width: number;
-  height: number;
-};
+import { Viewport } from './shared';
 
 type TemplateDoc = mongoose.Document & {
   _id: ObjectID;
   userId: ObjectID;
   name: string;
-  sizes: Size[];
+  viewports: Viewport[];
   quality: number;
 };
 
@@ -21,7 +17,7 @@ const templateSchema = new mongoose.Schema(
     _id: mongoose.Types.ObjectId,
     userId: { type: mongoose.Types.ObjectId, index: 1 },
     name: String,
-    sizes: [
+    viewports: [
       {
         width: Number,
         height: Number,

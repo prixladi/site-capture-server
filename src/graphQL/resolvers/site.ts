@@ -1,65 +1,86 @@
 import { IResolvers, ISchemaLevelResolver, composeResolvers } from 'graphql-tools';
 import { Context } from '../../types';
-import { MutationIdResult, MutationResult, NewSiteInput, PaginationInput, SiteType, UpdateSiteInput } from '../types';
+import { JobType, MutationIdResult, MutationResult, NewSiteInput, SiteType, UpdateSiteInput } from '../types';
 import { ObjectID } from 'mongodb';
-import { fallthroughResolver, siteDocToType } from '../helpers';
+import { createMutationIdResult, createMutationResult, fallthroughResolver, jobDocToType } from './utils';
 import validationResolvers from './validation/site';
-
-type SitesResolver = ISchemaLevelResolver<void, Context, { filter: PaginationInput }, Promise<SiteType[]>>;
-type SiteResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<SiteType | null>>;
 
 type CreateSiteResolver = ISchemaLevelResolver<void, Context, { site: NewSiteInput }, Promise<MutationIdResult>>;
 type UpdateSiteResolver = ISchemaLevelResolver<void, Context, { id: string; update: UpdateSiteInput }, Promise<MutationResult>>;
 type DeleteSiteResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<MutationResult>>;
+type RunJobResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<MutationIdResult>>;
 
-const sites: SitesResolver = async (_, { filter }, { db }) => {
-  const options = { skip: filter.skip, limit: filter.limit };
-  const sites = await db.SiteModel.find({ isPublic: true }, null, options);
-  return sites.map(siteDocToType);
+type SiteLatestJobResolver = ISchemaLevelResolver<SiteType, Context, void, Promise<JobType | null>>;
+
+const create: CreateSiteResolver = async (_, { site }, { db, getUser }) => {
+  const doc = { ...site, _id: new ObjectID(), userId: new ObjectID(getUser().id) };
+  await db.siteModel.create(doc);
+  return createMutationIdResult(doc._id.toString(), 'OK');
 };
 
-const site: SiteResolver = async (_, { id }, { db }) => {
-  const site = await db.SiteModel.findOne({ _id: id, isPublic: true });
-  if (!site) {
+const update: UpdateSiteResolver = async (_, { id, update }, { db, getUser }) => {
+  const site = await db.siteModel.findOne({ _id: id });
+  if (site == null || site.userId.toString() !== getUser().id) {
+    return createMutationResult('NOT_FOUND');
+  }
+
+  const updatedSite = await db.siteModel.findOneAndUpdate({ _id: id }, update, { new: true });
+  if (updatedSite == null) {
+    return createMutationResult('NOT_FOUND');
+  }
+
+  return createMutationResult('OK');
+};
+
+const _delete: DeleteSiteResolver = async (_, { id }, { db, getUser }) => {
+  const site = await db.siteModel.findOneAndDelete({ _id: id, userId: getUser().id });
+  if (site == null) {
+    return createMutationResult('NOT_FOUND');
+  }
+
+  return createMutationResult('OK');
+};
+
+const runJob: RunJobResolver = async (_, { id }, { db, getUser }) => {
+  const site = await db.siteModel.findOne({ _id: id, userId: getUser().id });
+  if (site == null) {
+    return createMutationResult('NOT_FOUND');
+  }
+
+  const doc = {
+    _id: new ObjectID(),
+    userId: new ObjectID(getUser().id),
+    url: site.url,
+    subsites: site.subsites,
+    viewports: site.viewports,
+    quality: site.quality,
+    status: false,
+    aquired: false,
+    progress: 0,
+  };
+  await db.jobModel.create(doc);
+  await db.siteModel.updateOne({ _id: id }, { $set: { latestJobId: doc._id } });
+
+  return createMutationResult('OK');
+};
+
+const latestJob: SiteLatestJobResolver = async (parent, _args, { db }) => {
+  if (!parent.latestJobId) {
     return null;
   }
 
-  return siteDocToType(site);
-};
-
-const create: CreateSiteResolver = async (_, { site }, { user, db }) => {
-  const doc = { ...site, _id: new ObjectID(), userId: new ObjectID(user!.id) };
-  await db.SiteModel.create(doc);
-  return { id: doc._id.toString(), query: {}, status: 'OK' };
-};
-
-const update: UpdateSiteResolver = async (_, { id, update }, { user, db }) => {
-  const site = await db.SiteModel.findOne({ _id: id });
-  if (site == null || site.userId.toString() !== user!.id) {
-    return { query: {}, status: 'NOT_FOUND' };
+  const doc = await db.jobModel.findOne({ _id: parent.latestJobId });
+  if (!doc) {
+    return null;
   }
 
-  const updatedSite = await db.SiteModel.findOneAndUpdate({ _id: id }, update, { new: true });
-  if (updatedSite == null) {
-    return { query: {}, status: 'NOT_FOUND' };
-  }
-
-  return { query: {}, status: 'OK' };
-};
-
-const _delete: DeleteSiteResolver = async (_, { id }, { user, db }) => {
-  const site = await db.SiteModel.findOneAndDelete({ _id: id, userId: user!.id });
-  if (site == null) {
-    return { query: {}, status: 'NOT_FOUND' };
-  }
-
-  return { query: {}, status: 'OK' };
+  return jobDocToType(doc);
 };
 
 const resolvers: IResolvers = {
-  Query: { sites, site },
   Mutation: { site: fallthroughResolver },
-  SiteMutation: { create, update, delete: _delete },
+  SiteMutation: { runJob, create, update, delete: _delete },
+  SiteWithJob: { latestJob },
 };
 
 export default composeResolvers(resolvers, validationResolvers);

@@ -2,39 +2,55 @@ type Site {
   id: ID!
   name: String!
   url: String!
-  sizes: [Size!]!
+  subsites: [String!]!
+  viewports: [Viewport!]!
   quality: Int!
-  isPublic: Boolean!
   userId: String!
+  latestJobId: String
+}
+
+type SiteWithJob {
+  id: ID!
+  name: String!
+  url: String!
+  subsites: [String!]!
+  viewports: [Viewport!]!
+  quality: Int!
+  userId: String!
+  latestJob: Job
 }
 
 input NewSiteInput {
   name: String!
   url: String!
-  sizes: [SizeInput!]!
+  subsites: [String!]!
+  viewports: [ViewportInput!]!
   quality: Int!
-  isPublic: Boolean!
 }
 
 input UpdateSiteInput {
   name: String
   url: String
-  sizes: [SizeInput!]
+  subsites: [String!]
+  viewports: [ViewportInput!]
   quality: Int
-  isPublic: Boolean
-}
-
-type Query {
-  sites(filter: PaginationInput!): [Site!]!
-  site(id: ID!): Site
 }
  
 type SiteMutation  {
+  # Creates new site and returns result.
   create(site: NewSiteInput): MutationIdResult!
-  update(id: ID, update: UpdateSiteInput): MutationResult!  
+  # Updates site and returns result.
+  update(id: ID, update: UpdateSiteInput): MutationResult! 
+  # Deletes site and returns result.
   delete(id: ID): MutationResult!
+  # Runs job using data from existing site. 
+  runJob(
+     # ID of site.
+     id: ID
+     ): MutationResult!
 }
 
 type Mutation {
+  # Site mutation node
   site: SiteMutation!
 }

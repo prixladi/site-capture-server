@@ -1,11 +1,11 @@
-type Size = {
+type Viewport = {
   width: number;
   height: number;
 };
 
 type NewTemplateInput = {
   name: string;
-  sizes: Size[];
+  viewports: Viewport[];
   quality: number;
 };
 
@@ -14,7 +14,7 @@ type UpdateTemplateInput = Partial<NewTemplateInput>;
 type TemplateType = {
   id: string;
   name: string;
-  sizes: Size[];
+  viewports: Viewport[];
   quality: number;
   userId: string;
 };
@@ -22,21 +22,43 @@ type TemplateType = {
 type NewSiteInput = {
   name: string;
   url: string;
-  sizes: Size[];
+  subsites: string[];
+  viewports: Viewport[];
   quality: number;
-  isPublic: boolean;
 };
 
 type UpdateSiteInput = Partial<NewSiteInput>;
 
 type SiteType = {
-  name: string;
   id: string;
+  name: string;
   url: string;
-  sizes: Size[];
+  subsites: string[];
+  viewports: Viewport[];
   quality: number;
-  isPublic: boolean;
   userId: string;
+  latestJobId?: string;
+};
+
+type ProgressItem = {
+  url: string;
+  status: boolean;
+  message?: string;
+};
+
+type JobType = {
+  id: string;
+  progress: number;
+  status: boolean;
+  errorMessage?: string;
+  zipFileId?: string;
+  items?: ProgressItem[];
+};
+
+type NewJobInput = {
+  url: string;
+  viewports: Viewport[];
+  quality: number;
 };
 
 type MeType = unknown;
@@ -54,19 +76,22 @@ type MutationResult = {
 };
 
 type MutationIdResult = MutationResult & {
-  id: string;
+  id?: string;
 };
 
 export {
-  Size,
+  Viewport,
   NewTemplateInput,
   UpdateTemplateInput,
   TemplateType,
   NewSiteInput,
   UpdateSiteInput,
   SiteType,
+  JobType,
+  NewJobInput,
   MeType,
   PaginationInput,
+  MutationStatus,
   MutationResult,
   MutationIdResult,
 };

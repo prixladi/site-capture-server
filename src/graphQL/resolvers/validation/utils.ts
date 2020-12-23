@@ -1,6 +1,7 @@
 import { UserInputError } from 'apollo-server-express';
 import joi from 'joi';
-import { PaginationInput, Size } from '../../types';
+import { objIdRegex, pathRegex } from '../../../constants';
+import { PaginationInput, Viewport } from '../../types';
 
 type Errors = Record<string, string[]>;
 
@@ -9,20 +10,20 @@ const paginationSchema = joi.object<PaginationInput>({
   limit: joi.number().min(1).max(200).required(),
 });
 
-const idSchema = joi
-  .string()
-  .pattern(/^[a-f\d]{24}$/i)
-  .required();
+const idSchema = joi.string().pattern(objIdRegex).required();
 
-const sizesSchema = joi
+const viewportsSchema = joi
   .array()
   .min(1)
+  .max(6)
   .items(
-    joi.object<Size>({
+    joi.object<Viewport>({
       width: joi.number().min(300).max(7000),
       height: joi.number().min(300).max(7000),
     }),
   );
+
+const subsitesSchema = joi.array().max(10).items(joi.string().regex(pathRegex));
 
 const quealitySchema = joi.number().min(10).max(100).required();
 
@@ -45,8 +46,6 @@ const validate = <T extends unknown>(schema: joi.AnySchema, object: T, extendErr
   return null;
 };
 
-const inputError = (errors: Errors) => {
-  return new UserInputError('Input validation error', errors);
-};
+const inputError = (errors: Errors): UserInputError => new UserInputError('Input validation error', errors);
 
-export { paginationSchema, idSchema, sizesSchema, quealitySchema, validate, inputError };
+export { paginationSchema, idSchema, viewportsSchema, quealitySchema, validate, inputError, subsitesSchema };

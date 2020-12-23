@@ -7,6 +7,8 @@ import { appPort } from './configs';
 import appoloLogger from './utils/appoloLogger';
 import createContext from './utils/createContext';
 import { startTokenFetching } from './auth';
+import { ObjectID } from 'mongodb';
+import createFileDownloadHandler from './fileDownload';
 
 const registerShutdown = () => {
   const shutdown = async () => {
@@ -17,6 +19,15 @@ const registerShutdown = () => {
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
 };
+
+export interface IGridFSObject {
+  _id: ObjectID;
+  length: number;
+  chunkSize: number;
+  uploadDate: Date;
+  md5: string;
+  filename: string;
+}
 
 const main = async (): Promise<void> => {
   const db = await connectDb();
@@ -31,6 +42,9 @@ const main = async (): Promise<void> => {
   app.use(corsHandler);
   apolloServer.applyMiddleware({ app, path: '/graphql' });
   startTokenFetching();
+
+  const { fileBucket } = db;
+  app.use('/downloads/:fileId', createFileDownloadHandler(fileBucket));
 
   registerShutdown();
 

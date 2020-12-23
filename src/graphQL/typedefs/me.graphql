@@ -1,10 +1,11 @@
 type Me {
   sites: [Site!]!
   templates: [Template!]!
-  site(id: ID!): Site
+  site(id: ID!): SiteWithJob
   template(id: ID!): Template
 }
 
 type Query {
+  # Cureently logged user node
   me: Me!
 }

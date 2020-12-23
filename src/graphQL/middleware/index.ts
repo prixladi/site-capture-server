@@ -13,7 +13,7 @@ const isAuthenticated = rule({ cache: 'contextual' })(async (_, _args, { user }:
 const permissions = shield(
   {
     Query: {
-      me: isAuthenticated
+      me: isAuthenticated,
     },
     Mutation: {
       site: isAuthenticated,

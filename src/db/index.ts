@@ -1,12 +1,17 @@
 import mongoose from 'mongoose';
 import { devEnvironment, mongoConfig } from '../configs';
-import SiteModel from './site';
-import TemplateModel from './template';
+import siteModel from './site';
+import templateModel from './template';
+import jobModel from './job';
 import { ObjectID } from 'mongodb';
+import { GridFSBucket } from 'mongodb';
+import createBucket from './fileBucket';
 
 type DB = {
-  SiteModel: typeof SiteModel;
-  TemplateModel: typeof TemplateModel;
+  siteModel: typeof siteModel;
+  templateModel: typeof templateModel;
+  jobModel: typeof jobModel;
+  fileBucket: GridFSBucket;
 };
 
 type RawDoc<Doc extends mongoose.Document> = Omit<Doc, keyof mongoose.Document> & { _id: ObjectID };
@@ -46,9 +51,13 @@ const connect = async (): Promise<DB> => {
     }
   }
 
+  const fileBucket = createBucket(mongoose.connection.db, 'results');
+
   return {
-    SiteModel,
-    TemplateModel,
+    siteModel,
+    templateModel,
+    jobModel,
+    fileBucket,
   };
 };
 
