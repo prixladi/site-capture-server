@@ -47,7 +47,7 @@ type SiteMutation  {
   runJob(
      # ID of site.
      id: ID
-     ): MutationResult!
+     ): MutationIdResult!
 }
 
 type Mutation {

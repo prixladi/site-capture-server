@@ -1,4 +1,5 @@
 import { DB } from './db';
+import { RedisPubSub } from 'graphql-redis-subscriptions';
 
 type User = {
   id: string;
@@ -6,6 +7,7 @@ type User = {
 
 type Context = {
   db: DB;
+  pubSub: RedisPubSub;
   user?: User;
   getUser: () => User;
 };

@@ -24,7 +24,7 @@ type TemplateMutation  {
   # Creates new template and returns result.
   create(template: NewTemplateInput): MutationIdResult!
   # Updates site and returns result.
-  update(id: ID, update: UpdateSiteInput): MutationResult! 
+  update(id: ID, update: UpdateTemplateInput): MutationResult! 
   # Deletes site and returns result.
   delete(id: ID): MutationResult!
 }

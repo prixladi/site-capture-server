@@ -4,9 +4,13 @@ import { JobType, MutationIdResult, NewJobInput } from '../types';
 import { createMutationIdResult, jobDocToType } from './utils';
 import { ObjectID } from 'mongodb';
 import validationResolvers from './validation/job';
+import { ApolloError, UserInputError } from 'apollo-server-express';
+import { JOB_UPDATED, objIdRegex } from '../../constants';
 
 type JobResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<JobType | null>>;
 type RunJobResolver = ISchemaLevelResolver<void, Context, { job: NewJobInput }, Promise<MutationIdResult>>;
+
+type JobUpdatedResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<AsyncIterator<unknown, any, undefined>>>;
 
 const anonymousJob: JobResolver = async (_, { id }, { db }) => {
   const job = await db.jobModel.findOne({ $and: [{ _id: id }, { userId: { $exists: false } }] });
@@ -30,12 +34,28 @@ const runAnonymousJob: RunJobResolver = async (_, { job }, { db }) => {
   };
   db.jobModel.create(doc);
 
-  return createMutationIdResult(doc._id.toString(), 'OK');
+  return createMutationIdResult(doc._id.toHexString(), 'OK');
+};
+
+const anonymousJobUpdated: { subscribe: JobUpdatedResolver } = {
+  subscribe: async (_, { id }, { db, pubSub }) => {
+    if (!id.match(objIdRegex)) {
+      throw new UserInputError('Id is invalid.', { id: 'Id is in invalid format.' });
+    }
+
+    const job = await db.jobModel.findOne({ $and: [{ _id: id }, { userId: { $exists: false } }] });
+    if (!job) {
+      throw new ApolloError(`Job with ID '${id}' was not found`, 'NOT_FOUND');
+    }
+
+    return pubSub.asyncIterator(JOB_UPDATED(id));
+  },
 };
 
 const resolvers: IResolvers = {
   Query: { anonymousJob },
   Mutation: { runAnonymousJob },
+  Subscription: { anonymousJobUpdated },
 };
 
 export default composeResolvers(resolvers, validationResolvers);

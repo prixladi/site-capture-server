@@ -8,8 +8,8 @@ const templateDocToType = (doc: RawDoc<TemplateDoc>): TemplateType => {
   const { _id, name, viewports, quality, userId } = doc;
 
   return {
-    id: _id.toString(),
-    userId: userId.toString(),
+    id: _id.toHexString(),
+    userId: userId.toHexString(),
     name,
     viewports,
     quality,
@@ -20,8 +20,8 @@ const siteDocToType = (doc: RawDoc<SiteDoc>): SiteType => {
   const { _id, name, url, viewports, quality, userId, latestJobId, subsites } = doc;
 
   return {
-    id: _id.toString(),
-    userId: userId.toString(),
+    id: _id.toHexString(),
+    userId: userId.toHexString(),
     name,
     url,
     subsites,
@@ -35,7 +35,7 @@ const jobDocToType = (doc: RawDoc<JobDoc>): JobType => {
   const { _id, progress, items, status, zipFileId, errorMessage } = doc;
 
   return {
-    id: _id.toString(),
+    id: _id.toHexString(),
     progress,
     status,
     errorMessage,

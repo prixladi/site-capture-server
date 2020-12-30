@@ -1,4 +1,6 @@
 const pathRegex = /^[/a-zA-Z0-9-#?&=_.]+$/;
 const objIdRegex = /^[a-f\d]{24}$/i;
 
-export { pathRegex, objIdRegex };
+const JOB_UPDATED = (id: string) => `job_updated.${id}`;
+
+export { pathRegex, objIdRegex, JOB_UPDATED };

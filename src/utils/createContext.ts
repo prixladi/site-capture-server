@@ -3,17 +3,22 @@ import { validateToken } from '../auth';
 import { DB } from '../db';
 import { Context } from '../types';
 import { Request } from 'express';
+import { RedisPubSub } from 'graphql-redis-subscriptions';
+
+type Params = {
+  Authorization?: string;
+};
 
 const tokenType = 'Bearer';
 
-const getToken = (req: Request) => {
+const getToken = (req: Request): string | undefined => {
   const token = req.header('Authorization');
-  return token && token.startsWith(tokenType) && token.substring(tokenType.length + 1);
+  if (token && token.startsWith(tokenType)) {
+    return token.substring(tokenType.length + 1);
+  }
 };
 
-const createContext = (db: DB) => ({ req }: ExpressContext): Context => {
-  const token = getToken(req);
-
+const handleToken = (db: DB, pubSub: RedisPubSub, token?: string): Context => {
   if (token) {
     const payload = validateToken(token);
     if (payload) {
@@ -23,6 +28,7 @@ const createContext = (db: DB) => ({ req }: ExpressContext): Context => {
 
       return {
         db,
+        pubSub,
         user,
         getUser: () => {
           return user;
@@ -33,10 +39,29 @@ const createContext = (db: DB) => ({ req }: ExpressContext): Context => {
 
   return {
     db,
+    pubSub,
     getUser: () => {
       throw new Error('Unable to retrieve user in this context.');
     },
   };
 };
 
-export default createContext;
+const createHttpContext = (db: DB, pubSub: RedisPubSub) => ({ req, connection }: ExpressContext): Context => {
+  // Websocket
+  if (connection) {
+    return {
+      ...connection.context,
+    };
+  }
+
+  const token = getToken(req);
+
+  return handleToken(db, pubSub, token);
+};
+
+const createWebsocketContext = (db: DB, pubSub: RedisPubSub) => (params: Params): Context => {
+  const token = params.Authorization;
+  return handleToken(db, pubSub, token);
+};
+
+export { createHttpContext, createWebsocketContext };

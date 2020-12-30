@@ -9,6 +9,16 @@ type Job {
   progress: Float!
   items: [ProgressItem!]
   status: Boolean!
+  errorMessage: String
+  zipFileId: String
+}
+
+type JobUpdate {
+  id: ID!
+  progress: Float!
+  status: Boolean!
+  items: ProgressItem
+  errorMessage: String
   zipFileId: String
 }
 
@@ -27,4 +37,9 @@ type Query {
 type Mutation {
   # Runs new job using provided data.
   runAnonymousJob(job: NewJobInput): MutationIdResult
+}
+
+type Subscription {
+   # Subscribes for updates about job.
+  anonymousJobUpdated(id: ID!): JobUpdate!
 }

@@ -15,12 +15,12 @@ type SiteLatestJobResolver = ISchemaLevelResolver<SiteType, Context, void, Promi
 const create: CreateSiteResolver = async (_, { site }, { db, getUser }) => {
   const doc = { ...site, _id: new ObjectID(), userId: new ObjectID(getUser().id) };
   await db.siteModel.create(doc);
-  return createMutationIdResult(doc._id.toString(), 'OK');
+  return createMutationIdResult(doc._id.toHexString(), 'OK');
 };
 
 const update: UpdateSiteResolver = async (_, { id, update }, { db, getUser }) => {
   const site = await db.siteModel.findOne({ _id: id });
-  if (site == null || site.userId.toString() !== getUser().id) {
+  if (site == null || site.userId.toHexString() !== getUser().id) {
     return createMutationResult('NOT_FOUND');
   }
 
@@ -61,7 +61,7 @@ const runJob: RunJobResolver = async (_, { id }, { db, getUser }) => {
   await db.jobModel.create(doc);
   await db.siteModel.updateOne({ _id: id }, { $set: { latestJobId: doc._id } });
 
-  return createMutationResult('OK');
+  return createMutationIdResult(doc._id.toHexString(),'OK');
 };
 
 const latestJob: SiteLatestJobResolver = async (parent, _args, { db }) => {

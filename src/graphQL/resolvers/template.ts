@@ -12,12 +12,12 @@ type DeleteTemplateResolver = ISchemaLevelResolver<void, Context, { id: string }
 const create: CreateTemplateResolver = async (_, { template }, { db, getUser }) => {
   const doc = { ...template, _id: new ObjectID(), userId: new ObjectID(getUser().id) };
   await db.templateModel.create(doc);
-  return createMutationIdResult(doc._id.toString(), 'OK');
+  return createMutationIdResult(doc._id.toHexString(), 'OK');
 };
 
 const update: UpdateTemplateResolver = async (_, { id, update }, { db, getUser }) => {
   const template = await db.templateModel.findOne({ _id: id });
-  if (template == null || template.userId.toString() !== getUser().id) {
+  if (template == null || template.userId.toHexString() !== getUser().id) {
     return createMutationResult('NOT_FOUND');
   }
 
