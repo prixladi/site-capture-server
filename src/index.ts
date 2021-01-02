@@ -7,10 +7,11 @@ import { connect as connectRedis, disconnect as disconnectRedis, subscribeProgre
 import corsHandler from './utils/corsHandler';
 import { appPort } from './configs';
 import appoloLogger from './utils/appoloLogger';
-import {createHttpContext, createWebsocketContext} from './utils/createContext';
+import { createHttpContext, createWebsocketContext } from './utils/createContext';
 import { startTokenFetching } from './auth';
 import createFileDownloadHandler from './fileDownload';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
+import { JOB_UPDATED } from './constants';
 
 const createServer = (db: DB, pubSub: RedisPubSub): Server => {
   const { fileBucket } = db;
@@ -26,7 +27,7 @@ const createServer = (db: DB, pubSub: RedisPubSub): Server => {
     subscriptions: {
       path: '/ws',
       keepAlive: 15000,
-      onConnect: createWebsocketContext(db, pubSub)
+      onConnect: createWebsocketContext(db, pubSub),
     },
   });
 
@@ -49,7 +50,9 @@ const main = async (): Promise<void> => {
   });
   const app = createServer(db, pubsub);
 
-  subscribeProgressUpdate(progessRedis, async (x) => console.log(x));
+  subscribeProgressUpdate(progessRedis, async (dto) => {
+    await pubsub.publish(JOB_UPDATED(dto.id), { anonymousJobUpdated: dto });
+  });
   startTokenFetching();
 
   const shutdown = async () => {

@@ -55,13 +55,24 @@ type JobType = {
   items?: ProgressItem[];
 };
 
+type JobUpdatedType = {
+  id: string;
+  progress: number;
+  status: boolean;
+  errorMessage?: string;
+  zipFileId?: string;
+  item: ProgressItem[];
+};
+
 type NewJobInput = {
   url: string;
   viewports: Viewport[];
   quality: number;
 };
 
-type MeType = unknown;
+type MeType = {
+  id: string;
+};
 
 type PaginationInput = {
   skip: number;
@@ -72,7 +83,6 @@ type MutationStatus = 'OK' | 'NOT_FOUND';
 
 type MutationResult = {
   status: MutationStatus;
-  query: unknown;
 };
 
 type MutationIdResult = MutationResult & {
@@ -88,6 +98,7 @@ export {
   UpdateSiteInput,
   SiteType,
   JobType,
+  JobUpdatedType,
   NewJobInput,
   MeType,
   PaginationInput,

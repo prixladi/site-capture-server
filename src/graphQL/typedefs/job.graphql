@@ -7,17 +7,17 @@ type ProgressItem {
 type Job {
   id: ID!
   progress: Float!
-  items: [ProgressItem!]
+  items: [ProgressItem!]!
   status: Boolean!
   errorMessage: String
   zipFileId: String
 }
 
-type JobUpdate {
+type JobUpdated {
   id: ID!
   progress: Float!
   status: Boolean!
-  items: ProgressItem
+  item: ProgressItem
   errorMessage: String
   zipFileId: String
 }
@@ -30,8 +30,10 @@ input NewJobInput {
 
 type Query {
   # Gets an anonymous job created through 'Mutation { runJob }'.
-  # To get job attached to specific site use 'Query { me { site { latestJob(siteId) } } }'.
   anonymousJob(id: ID!): Job
+
+  # Gets a job created through 'Mutation { site { runJob } }'.
+  job(id: ID!): Job
 }
 
 type Mutation {
@@ -40,6 +42,9 @@ type Mutation {
 }
 
 type Subscription {
-   # Subscribes for updates about job.
-  anonymousJobUpdated(id: ID!): JobUpdate!
+   # Subscribes for updates about anonymous job.
+  anonymousJobUpdated(id: ID!): JobUpdated!
+
+  # Subscribes for updates about job.
+  jobUpdated(id: ID!): JobUpdated!
 }

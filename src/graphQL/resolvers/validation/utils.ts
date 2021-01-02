@@ -18,14 +18,14 @@ const viewportsSchema = joi
   .max(6)
   .items(
     joi.object<Viewport>({
-      width: joi.number().min(300).max(7000),
-      height: joi.number().min(300).max(7000),
+      width: joi.number().min(300).max(10000),
+      height: joi.number().min(300).max(10000),
     }),
   );
 
 const subsitesSchema = joi.array().max(10).items(joi.string().regex(pathRegex));
 
-const quealitySchema = joi.number().min(10).max(100).required();
+const quealitySchema = joi.number().min(1).max(100).required();
 
 const validate = <T extends unknown>(schema: joi.AnySchema, object: T, extendErrors?: Errors | null): Errors | null => {
   const result = schema.validate(object, { abortEarly: false });

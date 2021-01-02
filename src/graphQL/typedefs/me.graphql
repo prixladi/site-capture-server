@@ -1,7 +1,8 @@
 type Me {
+  id: ID!
   sites: [Site!]!
   templates: [Template!]!
-  site(id: ID!): SiteWithJob
+  site(id: ID!): Site
   template(id: ID!): Template
 }
 

@@ -6,13 +6,11 @@ enum MutationStatus {
 
 type MutationResult {
   status: MutationStatus!
-  query: Query!
 }
 
 type MutationIdResult {
   id: ID
   status: MutationStatus!
-  query: Query!
 }
 
 type Viewport {

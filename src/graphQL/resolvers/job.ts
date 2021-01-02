@@ -4,7 +4,7 @@ import { JobType, MutationIdResult, NewJobInput } from '../types';
 import { createMutationIdResult, jobDocToType } from './utils';
 import { ObjectID } from 'mongodb';
 import validationResolvers from './validation/job';
-import { ApolloError, UserInputError } from 'apollo-server-express';
+import { ApolloError, AuthenticationError, UserInputError } from 'apollo-server-express';
 import { JOB_UPDATED, objIdRegex } from '../../constants';
 
 type JobResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<JobType | null>>;
@@ -14,6 +14,15 @@ type JobUpdatedResolver = ISchemaLevelResolver<void, Context, { id: string }, Pr
 
 const anonymousJob: JobResolver = async (_, { id }, { db }) => {
   const job = await db.jobModel.findOne({ $and: [{ _id: id }, { userId: { $exists: false } }] });
+  if (!job) {
+    return null;
+  }
+
+  return jobDocToType(job);
+};
+
+const job: JobResolver = async (_, { id }, { getUser, db }) => {
+  const job = await db.jobModel.findOne({ $and: [{ _id: id }, { userId: getUser().id }] });
   if (!job) {
     return null;
   }
@@ -52,10 +61,29 @@ const anonymousJobUpdated: { subscribe: JobUpdatedResolver } = {
   },
 };
 
+const jobUpdated: { subscribe: JobUpdatedResolver } = {
+  subscribe: async (_, { id }, { db, pubSub, user }) => {
+    if (!user) {
+      throw new AuthenticationError('User is not authorized.');
+    }
+
+    if (!id.match(objIdRegex)) {
+      throw new UserInputError('Id is invalid.', { id: 'Id is in invalid format.' });
+    }
+
+    const job = await db.jobModel.findOne({ $and: [{ _id: id }, { userId: user.id }] });
+    if (!job) {
+      throw new ApolloError(`Job with ID '${id}' was not found`, 'NOT_FOUND');
+    }
+
+    return pubSub.asyncIterator(JOB_UPDATED(id));
+  },
+};
+
 const resolvers: IResolvers = {
-  Query: { anonymousJob },
+  Query: { anonymousJob, job },
   Mutation: { runAnonymousJob },
-  Subscription: { anonymousJobUpdated },
+  Subscription: { anonymousJobUpdated, jobUpdated },
 };
 
 export default composeResolvers(resolvers, validationResolvers);

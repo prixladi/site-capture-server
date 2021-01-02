@@ -48,16 +48,14 @@ const fallthroughResolver = (): unknown => ({});
 
 const createMutationResult = (status: MutationStatus): MutationResult => {
   return {
-    status,
-    query: {},
+    status
   };
 };
 
 const createMutationIdResult = (id: string, status: MutationStatus): MutationIdResult => {
   return {
     id,
-    status,
-    query: {},
+    status
   };
 };
 

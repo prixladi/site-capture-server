@@ -1,6 +1,6 @@
 import { composeResolvers, IResolvers, ISchemaLevelResolver } from 'graphql-tools';
 import { Context } from '../../types';
-import { fallthroughResolver, siteDocToType, templateDocToType } from './utils';
+import { siteDocToType, templateDocToType } from './utils';
 import { MeType, SiteType, TemplateType } from '../types';
 import validationResolvers from './validation/me';
 
@@ -9,7 +9,13 @@ type TemplateResolver = ISchemaLevelResolver<void, Context, { id: string }, Prom
 type SitesResolver = ISchemaLevelResolver<void, Context, Record<string, string>, Promise<SiteType[]>>;
 type SiteResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<SiteType | null>>;
 
-type MeResolver = ISchemaLevelResolver<void, void, Record<string, string>, MeType>;
+type MeResolver = ISchemaLevelResolver<void, Context, Record<string, string>, MeType>;
+
+const me: MeResolver = (_, _args, { getUser }) => {
+  return {
+    id: getUser().id,
+  };
+};
 
 const site: SiteResolver = async (_, { id }, { db, getUser }) => {
   const site = await db.siteModel.findOne({ _id: id, userId: getUser().id });
@@ -28,7 +34,6 @@ const template: TemplateResolver = async (_, { id }, { db, getUser }) => {
 
   return templateDocToType(template);
 };
-const me: MeResolver = fallthroughResolver;
 
 const templates: TemplatesResolver = async (_, _args, { db, getUser }) => {
   const templates = await db.templateModel.find({ userId: getUser().id });

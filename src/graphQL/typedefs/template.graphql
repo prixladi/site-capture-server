@@ -22,11 +22,11 @@ input UpdateTemplateInput {
 
 type TemplateMutation  {
   # Creates new template and returns result.
-  create(template: NewTemplateInput): MutationIdResult!
+  create(template: NewTemplateInput): Template!
   # Updates site and returns result.
-  update(id: ID, update: UpdateTemplateInput): MutationResult! 
+  update(id: ID, update: UpdateTemplateInput): Template! 
   # Deletes site and returns result.
-  delete(id: ID): MutationResult!
+  delete(id: ID): Template!
 }
 
 type Mutation {
