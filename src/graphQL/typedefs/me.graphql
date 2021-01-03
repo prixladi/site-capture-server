@@ -4,6 +4,8 @@ type Me {
   templates: [Template!]!
   site(id: ID!): Site
   template(id: ID!): Template
+  # Gets a job created through 'Mutation { site { runJob } }'.
+  job(id: ID!): Job
 }
 
 type Query {

@@ -51,7 +51,7 @@ const main = async (): Promise<void> => {
   const app = createServer(db, pubsub);
 
   subscribeProgressUpdate(progessRedis, async (dto) => {
-    await pubsub.publish(JOB_UPDATED(dto.id), { anonymousJobUpdated: dto });
+    await pubsub.publish(JOB_UPDATED(dto.id), { jobUpdated: dto });
   });
   startTokenFetching();
 

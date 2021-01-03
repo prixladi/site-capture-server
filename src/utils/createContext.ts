@@ -2,7 +2,6 @@ import { ExpressContext } from 'apollo-server-express/dist/ApolloServer';
 import { validateToken } from '../auth';
 import { DB } from '../db';
 import { Context } from '../types';
-import { Request } from 'express';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 
 type Params = {
@@ -11,8 +10,7 @@ type Params = {
 
 const tokenType = 'Bearer';
 
-const getToken = (req: Request): string | undefined => {
-  const token = req.header('Authorization');
+const getToken = (token?: string): string | undefined => {
   if (token && token.startsWith(tokenType)) {
     return token.substring(tokenType.length + 1);
   }
@@ -54,13 +52,12 @@ const createHttpContext = (db: DB, pubSub: RedisPubSub) => ({ req, connection }:
     };
   }
 
-  const token = getToken(req);
-
+  const token = getToken(req.header('Authorization'));
   return handleToken(db, pubSub, token);
 };
 
 const createWebsocketContext = (db: DB, pubSub: RedisPubSub) => (params: Params): Context => {
-  const token = params.Authorization;
+  const token = getToken(params.Authorization);
   return handleToken(db, pubSub, token);
 };
 

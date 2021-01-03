@@ -21,15 +21,6 @@ const anonymousJob: JobResolver = async (_, { id }, { db }) => {
   return jobDocToType(job);
 };
 
-const job: JobResolver = async (_, { id }, { getUser, db }) => {
-  const job = await db.jobModel.findOne({ $and: [{ _id: id }, { userId: getUser().id }] });
-  if (!job) {
-    return null;
-  }
-
-  return jobDocToType(job);
-};
-
 const runAnonymousJob: RunJobResolver = async (_, { job }, { db }) => {
   const doc = {
     _id: new ObjectID(),
@@ -46,33 +37,25 @@ const runAnonymousJob: RunJobResolver = async (_, { job }, { db }) => {
   return createMutationIdResult(doc._id.toHexString(), 'OK');
 };
 
-const anonymousJobUpdated: { subscribe: JobUpdatedResolver } = {
-  subscribe: async (_, { id }, { db, pubSub }) => {
+const jobUpdated: { subscribe: JobUpdatedResolver } = {
+  subscribe: async (_, { id }, { db, pubSub, user }) => {
     if (!id.match(objIdRegex)) {
       throw new UserInputError('Id is invalid.', { id: 'Id is in invalid format.' });
     }
 
-    const job = await db.jobModel.findOne({ $and: [{ _id: id }, { userId: { $exists: false } }] });
+    const job = await db.jobModel.findOne({ _id: id });
     if (!job) {
       throw new ApolloError(`Job with ID '${id}' was not found`, 'NOT_FOUND');
     }
 
-    return pubSub.asyncIterator(JOB_UPDATED(id));
-  },
-};
+    if (!job.userId) {
+      return pubSub.asyncIterator(JOB_UPDATED(id));
+    }
 
-const jobUpdated: { subscribe: JobUpdatedResolver } = {
-  subscribe: async (_, { id }, { db, pubSub, user }) => {
     if (!user) {
       throw new AuthenticationError('User is not authorized.');
     }
-
-    if (!id.match(objIdRegex)) {
-      throw new UserInputError('Id is invalid.', { id: 'Id is in invalid format.' });
-    }
-
-    const job = await db.jobModel.findOne({ $and: [{ _id: id }, { userId: user.id }] });
-    if (!job) {
+    if (user.id !== job.userId.toHexString()) {
       throw new ApolloError(`Job with ID '${id}' was not found`, 'NOT_FOUND');
     }
 
@@ -81,9 +64,9 @@ const jobUpdated: { subscribe: JobUpdatedResolver } = {
 };
 
 const resolvers: IResolvers = {
-  Query: { anonymousJob, job },
+  Query: { anonymousJob },
   Mutation: { runAnonymousJob },
-  Subscription: { anonymousJobUpdated, jobUpdated },
+  Subscription: { jobUpdated },
 };
 
 export default composeResolvers(resolvers, validationResolvers);

@@ -29,11 +29,8 @@ input NewJobInput {
 }
 
 type Query {
-  # Gets an anonymous job created through 'Mutation { runJob }'.
+  # Gets an anonymous job created through 'Mutation { runAnonymousJob }'.
   anonymousJob(id: ID!): Job
-
-  # Gets a job created through 'Mutation { site { runJob } }'.
-  job(id: ID!): Job
 }
 
 type Mutation {
@@ -42,9 +39,6 @@ type Mutation {
 }
 
 type Subscription {
-   # Subscribes for updates about anonymous job.
-  anonymousJobUpdated(id: ID!): JobUpdated!
-
   # Subscribes for updates about job.
   jobUpdated(id: ID!): JobUpdated!
 }
