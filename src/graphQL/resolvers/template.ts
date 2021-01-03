@@ -7,12 +7,7 @@ import validationResolvers from './validation/template';
 import { ApolloError } from 'apollo-server-express';
 
 type CreateTemplateResolver = ISchemaLevelResolver<void, Context, { template: NewTemplateInput }, Promise<TemplateType>>;
-type UpdateTemplateResolver = ISchemaLevelResolver<
-  void,
-  Context,
-  { id: string; update: UpdateTemplateInput },
-  Promise<TemplateType>
->;
+type UpdateTemplateResolver = ISchemaLevelResolver<void, Context, { id: string; update: UpdateTemplateInput }, Promise<TemplateType>>;
 type DeleteTemplateResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<TemplateType>>;
 
 const create: CreateTemplateResolver = async (_, { template }, { db, getUser }) => {

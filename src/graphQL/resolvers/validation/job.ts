@@ -34,7 +34,7 @@ const runAnonymousJob = (next: RunJobResolver): RunJobResolver => async (root, a
 
 const resolvers: IResolvers = {
   Query: { anonymousJob },
-  Mutation: { runAnonymousJob }
+  Mutation: { runAnonymousJob },
 };
 
 export default resolvers;

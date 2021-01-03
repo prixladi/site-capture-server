@@ -10,7 +10,7 @@ import { JOB_UPDATED, objIdRegex } from '../../constants';
 type JobResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<JobType | null>>;
 type RunJobResolver = ISchemaLevelResolver<void, Context, { job: NewJobInput }, Promise<MutationIdResult>>;
 
-type JobUpdatedResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<AsyncIterator<unknown, any, undefined>>>;
+type JobUpdatedResolver = ISchemaLevelResolver<void, Context, { id: string }, Promise<AsyncIterator<unknown, unknown, undefined>>>;
 
 const anonymousJob: JobResolver = async (_, { id }, { db }) => {
   const job = await db.jobModel.findOne({ $and: [{ _id: id }, { userId: { $exists: false } }] });
