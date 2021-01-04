@@ -1,7 +1,7 @@
-# Shamyr Rescues Server
+# Site Capture Server
 
-Backend for [Shamyr Rescues](https://github.com/prixladi/shamyr-rescues) project,<br />
-For everything to function properly should be run together with [Frontend](https://github.com/prixladi/shamyr-rescues-server).
+Backend for [Site Capture](https://github.com/prixladi/site-capture) project.<br />
+For everything to function properly should be run together with [Frontend](https://github.com/prixladi/site-capture-next).
 
 ## Yarn
 
